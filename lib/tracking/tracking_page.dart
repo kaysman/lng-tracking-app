@@ -1,14 +1,30 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:timelines/timelines.dart';
-import 'package:v2_tracking_page/layout.dart';
 import 'package:v2_tracking_page/shared/colors.dart';
 import 'package:v2_tracking_page/shared/components/button.dart';
-import 'package:v2_tracking_page/shared/components/indicators.dart';
+import 'package:v2_tracking_page/shared/helpers.dart';
 import 'package:v2_tracking_page/shared/icons.dart';
 import 'package:v2_tracking_page/shared/spacings.dart';
 import 'package:v2_tracking_page/shared/theming.dart';
+import 'package:v2_tracking_page/tracking/widgets/delivery-settings.dart';
+
+class Stop {
+  String title;
+  List<Step> steps;
+
+  Stop(this.title, this.steps);
+}
+
+class Step {
+  String time;
+  String title;
+  String subtitle;
+
+  Step(this.time, this.title, this.subtitle);
+}
 
 class TrackingScreen extends StatefulWidget {
   static const String routeName = 'tracking';
@@ -40,222 +56,246 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kWhite,
+      appBar: header(context),
+      body: Container(
+        width: double.infinity,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(top: 32.0),
+          child: bodyContent(),
+        ),
+      ),
+    );
+  }
+
+  header(BuildContext context) {
+    return AppBar(
+      backgroundColor: kWhite,
+      elevation: 2,
+      scrolledUnderElevation: 2.8,
+      title: Row(
+        children: [
+          SizedBox(width: 80),
+          Image.asset(
+            AppIcons.logo,
+            width: 35.sp,
+            height: 45.sp,
+          ),
+          Spacings.TINY_HORIZONTAL,
+          Text(
+            "Load and Go",
+            style: GoogleFonts.inter(
+              color: kPrimaryColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.phone,
+                size: 24.sp,
+              ),
+              Spacings.TINY_HORIZONTAL,
+              Text.rich(
+                TextSpan(
+                  text: "Talk with our team at ",
+                  style: Theme.of(context).textTheme.bodyText1,
+                  children: [
+                    TextSpan(
+                      text: "+56 458 3256",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          ?.copyWith(color: kPrimaryColor),
+                      mouseCursor: MaterialStateMouseCursor.clickable,
+                      onEnter: (v) {},
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 80),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  bodyContent() {
     return Form(
       key: _formKey,
-      child: LoginLayout(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Shipment Tracking",
-              style: Theme.of(context).textTheme.headline4?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+      child: Column(
+        children: [
+          Text(
+            "Shipment Tracking",
+            style: Theme.of(context).textTheme.headline4?.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          Spacings.TINY_VERTICAL,
+          Text("Track your order",
+              style: Theme.of(context).textTheme.bodyText1),
+          Spacings.LITTLE_BIG_VERTICAL,
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 45,
+                  color: const Color(0xff000000).withOpacity(0.1),
+                ),
+              ],
             ),
-            Spacings.TINY_VERTICAL,
-            Text("Track your order",
-                style: Theme.of(context).textTheme.bodyText1),
-            Spacings.LITTLE_BIG_VERTICAL,
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 45,
-                    color: const Color(0xff000000).withOpacity(0.1),
-                  ),
-                ],
-              ),
-              child: buildTrackNumberSection(),
+            child: buildTrackNumberSection(),
+          ),
+          Spacings.LITTLE_BIG_VERTICAL,
+          contactUs(),
+          Spacings.LITTLE_BIG_VERTICAL,
+          Container(
+            width: .6.sw,
+            padding: const EdgeInsets.all(30),
+            decoration: BoxDecoration(
+              color: Color(0xffE0E0E0).withOpacity(.15),
+              borderRadius: BorderRadius.circular(10),
             ),
-            Spacings.LITTLE_BIG_VERTICAL,
-            contactUs(),
-            Spacings.LITTLE_BIG_VERTICAL,
-            Container(
-              width: .6.sw,
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: Color(0xffE0E0E0).withOpacity(.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              // TODO: SingleChild?
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildOrderPickHeader(context),
+                Spacings.NORMAL_VERTICAL,
+                buildTrackingNumber(context),
+                Spacings.NORMAL_VERTICAL,
+                buildEstimatedDate(context),
+                Spacings.NORMAL_VERTICAL,
+                destinationFromToSection(),
+                Spacings.NORMAL_VERTICAL,
+                allDestinationsSection()
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  allDestinationsSection() {
+    return Container(
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Where your shipment has been',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 32),
+          Timeline.tileBuilder(
+            padding: EdgeInsets.zero,
+            theme: TimelineThemeData(
+              direction: Axis.vertical,
+              nodePosition: 0,
+            ),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            builder: TimelineTileBuilder.connected(
+              itemCount: 10,
+              connectionDirection: ConnectionDirection.before,
+              indicatorBuilder: (context, index) {
+                return DotIndicator(
+                  size: 20,
+                  color: kWhite,
+                  shadows: [
+                    BoxShadow(
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      color: const Color(0xff000000).withOpacity(0.1),
+                    ),
+                  ],
+                  child: DotIndicator(
+                    color: kPrimaryColor,
+                    size: 10,
+                  ),
+                );
+              },
+              connectorBuilder: (_, index, type) {
+                return SolidLineConnector(
+                  indent: 0,
+                  endIndent: 0,
+                  space: 10,
+                  direction: Axis.vertical,
+                  color: kPrimaryColor,
+                );
+              },
+              oppositeContentsBuilder: (context, index) {
+                return Container(
+                  height: 20,
+                  width: 20,
+                  color: Colors.yellow,
+                );
+              },
+              contentsBuilder: (context, index) {
+                return Container(
+                  padding: EdgeInsets.only(
+                    left: 18.w,
+                    bottom: 24.w,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Sunday, 14 Jan 2022',
+                        style: Theme.of(context).textTheme.bodyText1,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  destinationFromToSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        color: Colors.white,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Column(
                 children: [
-                  buildOrderPickHeader(context),
-                  Spacings.NORMAL_VERTICAL,
-                  buildTrackingNumber(context),
-                  Spacings.NORMAL_VERTICAL,
-                  buildEstimatedDate(context),
-                  Spacings.NORMAL_VERTICAL,
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(30),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
-                      color: Colors.white,
-                    ),
-                    child: Column(
-                      // crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        SmallCircules(
-                                          size: 20,
-                                          color: kWhite,
-                                          shadows: [
-                                            BoxShadow(
-                                              blurRadius: 10,
-                                              spreadRadius: 1,
-                                              color: const Color(0xff000000)
-                                                  .withOpacity(0.1),
-                                            ),
-                                          ],
-                                          child: SmallCircules(
-                                            color: kBlack,
-                                            size: 10,
-                                          ),
-                                        ),
-                                        Image.asset(
-                                          AppIcons.arrow_down,
-                                          color: kPrimaryColor,
-                                          height: 90,
-                                          width: 15,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ],
-                                    ),
-                                    Spacings.SMALL_HORIZONTAL,
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'From: Boots Shoe Co.',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Text('22 Boon Street'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SmallCircules(
-                                      size: 20,
-                                      color: kWhite,
-                                      shadows: [
-                                        BoxShadow(
-                                          blurRadius: 10,
-                                          spreadRadius: 1,
-                                          color: const Color(0xff000000)
-                                              .withOpacity(0.1),
-                                        ),
-                                      ],
-                                      child: SmallCircules(
-                                        color: kPrimaryColor,
-                                        size: 10,
-                                      ),
-                                    ),
-                                    Spacings.SMALL_HORIZONTAL,
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'To: Towishful Haker Chowdhury',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Text(
-                                            '22 Boon Street',
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Text(
-                                            'Delivery note: Please give message if u dont get package..',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: TextButton.icon(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.edit,
-                                  color: kPrimaryColor,
-                                ),
-                                label: Text(
-                                  'Edit note',
-                                  style: TextStyle(color: kPrimaryColor),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Spacings.NORMAL_VERTICAL,
-                        Container(
-                          child: Column(
-                            children: [
-                              Text('Item details'),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Icon(Icons.keyboard_arrow_down)
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Spacings.NORMAL_VERTICAL,
-                  Container(
-                    padding: const EdgeInsets.all(30),
-                    color: Colors.white,
-                    child: Timeline.tileBuilder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      builder: TimelineTileBuilder.connected(
-                        connectionDirection: ConnectionDirection.before,
-                        indicatorBuilder: (context, index) {
-                          return SmallCircules(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          DotIndicator(
                             size: 20,
                             color: kWhite,
                             shadows: [
@@ -265,43 +305,117 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                 color: const Color(0xff000000).withOpacity(0.1),
                               ),
                             ],
-                            child: SmallCircules(
-                              color: kPrimaryColor,
+                            child: DotIndicator(
+                              color: kBlack,
                               size: 10,
                             ),
-                          );
-                        },
-                        connectorBuilder: (_, index, ___) {
-                          return SolidLineConnector(
-                            indent: 0,
-                            endIndent: 0,
-                            space: 10,
-                            direction: Axis.vertical,
+                          ),
+                          Image.asset(
+                            AppIcons.arrow_down,
                             color: kPrimaryColor,
-                          );
-                        },
-                        contentsBuilder: (context, index) {
-                          return Container(
-                            padding: EdgeInsets.only(left: 18.w, bottom: 24.w),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Sunday, 14 Jan 2022',
-                                  style: Theme.of(context).textTheme.bodyText1,
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        itemCount: 10,
+                            height: 90,
+                            width: 10,
+                            fit: BoxFit.cover,
+                          ),
+                        ],
                       ),
-                    ),
-                  )
+                      Spacings.SMALL_HORIZONTAL,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'From: Boots Shoe Co.',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text('22 Boon Street'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DotIndicator(
+                        size: 20,
+                        color: kWhite,
+                        shadows: [
+                          BoxShadow(
+                            blurRadius: 10,
+                            spreadRadius: 1,
+                            color: const Color(0xff000000).withOpacity(0.1),
+                          ),
+                        ],
+                        child: DotIndicator(
+                          color: kPrimaryColor,
+                          size: 10,
+                        ),
+                      ),
+                      Spacings.SMALL_HORIZONTAL,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'To: Towishful Haker Chowdhury',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              '22 Boon Street',
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Delivery note: Please give message if u dont get package..',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            )
-          ],
-        ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: TextButton.icon(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.edit,
+                    color: kPrimaryColor,
+                  ),
+                  label: Text(
+                    'Edit note',
+                    style: TextStyle(color: kPrimaryColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Spacings.NORMAL_VERTICAL,
+          Container(
+            child: Column(
+              children: [
+                Text('Item details'),
+                SizedBox(height: 10),
+                Icon(Icons.keyboard_arrow_down)
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -390,7 +504,12 @@ class _TrackingScreenState extends State<TrackingScreen> {
             'Delivery settngs',
             style: TextStyle(color: kPrimaryColor),
           ),
-          onPressed: () {},
+          onPressed: () {
+            showAppDialog(
+              context,
+              DeliverySettings()
+            );
+          },
         )
       ],
     );
@@ -486,8 +605,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 }
 
-class SmallCircules extends StatelessWidget {
-  const SmallCircules({
+class DotIndicator extends StatelessWidget {
+  const DotIndicator({
     Key? key,
     required this.size,
     required this.color,

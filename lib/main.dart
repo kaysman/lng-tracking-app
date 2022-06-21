@@ -9,15 +9,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-        designSize: const Size(1440, 1190),
-        builder: (context, child) {
-          return MaterialApp(
-            title: 'Tracking Page',
-            debugShowCheckedModeBanner: false,
-            initialRoute: TrackingScreen.routeName,
-            onGenerateRoute: onGenerateRoutes,
-            onGenerateInitialRoutes: onGenerateInitialRoute,
-          );
-        });
+      designSize: const Size(1440, 1190),
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Tracking Page',
+          debugShowCheckedModeBanner: false,
+          initialRoute: TrackingScreen.routeName,
+          onGenerateRoute: onGenerateRoutes,
+          onGenerateInitialRoutes: onGenerateInitialRoute,
+        );
+      },
+    );
   }
 }

@@ -35,6 +35,21 @@ Future<String> getTimezone() async {
 //   }
 // }
 
+void showAppDialog(
+  BuildContext context,
+  Widget child,
+) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        backgroundColor: Colors.white,
+        child: child,
+      );
+    },
+  );
+}
+
 /// -------------
 /// [showSnackBar] method shows snackbar.
 /// Context should not be null
@@ -217,5 +232,3 @@ class DateHelper {
 checkIfChangedAndReturn(oldValue, newValue) {
   return (oldValue != newValue && newValue != '-') ? newValue : null;
 }
-
-
