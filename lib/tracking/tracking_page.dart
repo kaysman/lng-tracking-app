@@ -34,9 +34,12 @@ class TrackingScreen extends StatefulWidget {
   State<TrackingScreen> createState() => _TrackingScreenState();
 }
 
+// late Future 
+
 class _TrackingScreenState extends State<TrackingScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _trackingNumberController = TextEditingController();
+  bool isShowItemDetails = false;
 
   @override
   void initState() {
@@ -44,6 +47,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
     _focusNode.addListener(() {
       setState(() {});
     });
+
+
   }
 
   FocusNode _focusNode = FocusNode();
@@ -235,26 +240,64 @@ class _TrackingScreenState extends State<TrackingScreen> {
                 );
               },
               connectorBuilder: (_, index, type) {
-                return SolidLineConnector(
-                  indent: 0,
-                  endIndent: 0,
-                  space: 10,
-                  direction: Axis.vertical,
-                  color: kPrimaryColor,
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(left: 50),
+                      child: SolidLineConnector(
+                        indent: 0,
+                        endIndent: 0,
+                        direction: Axis.vertical,
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 50,
+                            child: Divider(
+                              color: kBlack,
+                              thickness: 2,
+                              height: 1,
+                              endIndent: 0,
+                              indent: 0,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: 50,
+                            child: Divider(
+                              color: kBlack,
+                              thickness: 2,
+                              height: 1,
+                              endIndent: 0,
+                              indent: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
                 );
               },
-              oppositeContentsBuilder: (context, index) {
-                return Container(
-                  height: 20,
-                  width: 20,
-                  color: Colors.yellow,
-                );
-              },
+              // oppositeContentsBuilder: (context, index) {
+              //   return Container(
+              //     height: 20,
+              //     width: 20,
+              //     color: Colors.yellow,
+              //   );
+              // },
               contentsBuilder: (context, index) {
                 return Container(
+                  height: 80,
                   padding: EdgeInsets.only(
                     left: 18.w,
-                    bottom: 24.w,
+                    // bottom: 24.w,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -392,7 +435,12 @@ class _TrackingScreenState extends State<TrackingScreen> {
                 bottom: 0,
                 right: 0,
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    showAppDialog(
+                      context,
+                      EditDeliveryNotes(),
+                    );
+                  },
                   icon: Icon(
                     Icons.edit,
                     color: kPrimaryColor,
@@ -406,15 +454,67 @@ class _TrackingScreenState extends State<TrackingScreen> {
             ],
           ),
           Spacings.NORMAL_VERTICAL,
-          Container(
-            child: Column(
-              children: [
-                Text('Item details'),
-                SizedBox(height: 10),
-                Icon(Icons.keyboard_arrow_down)
-              ],
+          InkWell(
+            onTap: () {
+              setState(() {
+                isShowItemDetails = !isShowItemDetails;
+              });
+            },
+            child: Container(
+              width: double.infinity,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedCrossFade(
+                    sizeCurve: Curves.easeOutQuint,
+                    firstChild: Container(
+                      child: Column(
+                        children: [
+                          Text('Item details'),
+                          SizedBox(height: 10),
+                          Icon(
+                            isShowItemDetails
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                          )
+                        ],
+                      ),
+                    ),
+                    secondChild: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isShowItemDetails) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Item details:'),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+                                Text('Apple Iphone 13 Pro Max 256GB'),
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+                                Text('1 unit'),
+                              ],
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                    crossFadeState: isShowItemDetails
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: Duration(milliseconds: 1000),
+                  )
+                ],
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -505,10 +605,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
             style: TextStyle(color: kPrimaryColor),
           ),
           onPressed: () {
-            showAppDialog(
-              context,
-              DeliverySettings()
-            );
+            showAppDialog(context, DeliverySettings());
           },
         )
       ],
@@ -602,6 +699,106 @@ class _TrackingScreenState extends State<TrackingScreen> {
     } else {
       throw ("error");
     }
+  }
+}
+
+class EditDeliveryNotes extends StatelessWidget {
+  const EditDeliveryNotes({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+          width: .3.sw,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Delivery notes',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 24.h,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    color: kWhite, borderRadius: BorderRadius.circular(8)),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          color: kGrey5Color,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: TextField(
+                        decoration: InputDecoration(
+                            hintText: 'Add delivery notes...',
+                            hintStyle: Theme.of(context).textTheme.caption,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 15),
+                            border: InputBorder.none),
+                        maxLines: 8,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 24.h,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Button(
+                          borderColor: kGrey1Color,
+                          elevation: 0,
+                          hasBorder: true,
+                          onPressed: () {},
+                          text: 'Delete',
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 20),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Button(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 20),
+                          text: 'Update',
+                          textColor: kWhite,
+                          primary: kPrimaryColor,
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        Positioned(
+          top: 14,
+          left: 14,
+          child: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(
+              Icons.close,
+              size: 18,
+            ),
+          ),
+        )
+      ],
+    );
   }
 }
 

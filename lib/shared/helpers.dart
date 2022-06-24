@@ -4,7 +4,7 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:intl/intl.dart';
 import 'colors.dart';
 
-String apiUrl = "lng-test-environment.as.r.appspot.com";
+String apiUrl = "load-and-go-352809.as.r.appspot.com";
 Future<Map<String, String>> get headers async => {
       "Content-Type": "application/json",
       "Accept": "*/*",
