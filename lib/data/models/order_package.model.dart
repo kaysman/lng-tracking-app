@@ -40,9 +40,9 @@ class OrderPackage {
   final bool? isDangerousGood;
   final TypeOfPackage? type;
   final String? otherNotes;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? deletedAt;
 
   factory OrderPackage.fromJson(Map<String, dynamic> json) =>
       _$OrderPackageFromJson(json);

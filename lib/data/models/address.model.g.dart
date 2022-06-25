@@ -10,23 +10,17 @@ Address _$AddressFromJson(Map<String, dynamic> json) => Address(
       id: json['id'] as String?,
       genericTypeOfLocation: $enumDecodeNullable(
           _$GenericTypeOfLocationEnumMap, json['genericTypeOfLocation']),
-      deletedAt: json['deletedAt'] == null
-          ? null
-          : DateTime.parse(json['deletedAt'] as String),
+      deletedAt: json['deletedAt'] as String?,
       addressLineOne: json['addressLineOne'] as String?,
       addressLineTwo: json['addressLineTwo'] as String?,
       addressLineThree: json['addressLineThree'] as String?,
       city: json['city'] as String?,
       country: json['country'] as String?,
       countryCode: json['countryCode'] as String?,
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] as String?,
       postalCode: json['postalCode'] as String?,
       state: json['state'] as String?,
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
+      updatedAt: json['updatedAt'] as String?,
       addressType:
           $enumDecodeNullable(_$AddressTypeEnumMap, json['addressType']),
       longitude: json['longitude'] as String?,
@@ -56,9 +50,9 @@ Map<String, dynamic> _$AddressToJson(Address instance) => <String, dynamic>{
           _$TypeOfContactForAddressEnumMap[instance.typeOfContactForAddress],
       'genericTypeOfLocation':
           _$GenericTypeOfLocationEnumMap[instance.genericTypeOfLocation],
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'deletedAt': instance.deletedAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
+      'createdAt': instance.createdAt,
+      'deletedAt': instance.deletedAt,
+      'updatedAt': instance.updatedAt,
     };
 
 const _$GenericTypeOfLocationEnumMap = {

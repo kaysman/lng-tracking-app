@@ -3,7 +3,6 @@ import 'package:v2_tracking_page/data/models/order_package.model.dart';
 import 'package:v2_tracking_page/data/models/order_reference.model.dart';
 import 'package:v2_tracking_page/data/models/order_timeline.model.dart';
 import 'package:json_annotation/json_annotation.dart';
-part 'track-order.model.g.dart';
 
 @JsonSerializable()
 class TrackOrder {
@@ -58,11 +57,80 @@ class TrackOrder {
     this.itemsInOrderPackages,
     this.orderTimelines,
   });
-  factory TrackOrder.fromJson(Map<String, dynamic> json) =>
-      _$TrackOrderFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TrackOrderToJson(this);
 
   @override
   String toString() => "$id";
+  factory TrackOrder.fromJson(Map<String, dynamic> json) => TrackOrder(
+        id: json['id'] as String,
+        tenantName: json['tenantName'] as String?,
+        merchantName: json['merchantName'] as String?,
+        status: json['status'] as String?,
+        serviceType: json['serviceType'] as String?,
+        serviceLevel: json['serviceLevel'] as String?,
+        receiverDetail: json['receiverDetail'] == null
+            ? null
+            : ContactDetail.fromJson(
+                json['receiverDetail'] as Map<String, dynamic>),
+        deliveryNotesFromMerchant: json['deliveryNotesFromMerchant'] as String?,
+        deliveryNotesFromReceiver: json['deliveryNotesFromReceiver'] as String?,
+        deliveryNotesFromDriver: json['deliveryNotesFromDriver'] as String?,
+        orderReference: json['orderReference'] == null
+            ? null
+            : OrderReference.fromJson(
+                json['orderReference'] as Map<String, dynamic>),
+        orderPackage: (json['orderPackage'] as List<dynamic>?)
+            ?.map((e) => OrderPackage.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        allowWeekendDelivery: json['allowWeekendDelivery'] as bool?,
+        requestedDeliveryTimeSlotStart:
+            json['requestedDeliveryTimeSlotStart'] == null
+                ? null
+                : DateTime.tryParse(json['requestedDeliveryTimeSlotStart']),
+        requestedDeliveryTimeSlotEnd:
+            json['requestedDeliveryTimeSlotEnd'] == null
+                ? null
+                : DateTime.tryParse(json['requestedDeliveryTimeSlotEnd']),
+        cashOnDeliveryRequested: json['cashOnDeliveryRequested'] as bool?,
+        cashOnDeliveryAmount: json['cashOnDeliveryAmount'] as int?,
+        cashOnDeliveryCurrency: json['cashOnDeliveryCurrency'] as String?,
+        insuredAmount: json['insuredAmount'] as int?,
+        insuredAmountCurrency: json['insuredAmountCurrency'] as String?,
+        deliveredAt: json['deliveredAt'] == null
+            ? null
+            : DateTime.tryParse(json['deliveredAt']),
+        totalWeight: json['totalWeight'] as int?,
+        itemsInOrderPackages: json['itemsInOrderPackages'] as String?,
+        orderTimelines: (json['orderTimelines'] as List<dynamic>?)
+            ?.map((e) => OrderTimeline.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': this.id,
+        'tenantName': this.tenantName,
+        'merchantName': this.merchantName,
+        'status': this.status,
+        'serviceType': this.serviceType,
+        'serviceLevel': this.serviceLevel,
+        'receiverDetail': this.receiverDetail,
+        'deliveryNotesFromMerchant': this.deliveryNotesFromMerchant,
+        'deliveryNotesFromReceiver': this.deliveryNotesFromReceiver,
+        'deliveryNotesFromDriver': this.deliveryNotesFromDriver,
+        'orderReference': this.orderReference,
+        'orderPackage': this.orderPackage,
+        'allowWeekendDelivery': this.allowWeekendDelivery,
+        'requestedDeliveryTimeSlotStart':
+            this.requestedDeliveryTimeSlotStart?.toUtc(),
+        'requestedDeliveryTimeSlotEnd':
+            this.requestedDeliveryTimeSlotEnd?.toUtc(),
+        'cashOnDeliveryRequested': this.cashOnDeliveryRequested,
+        'cashOnDeliveryAmount': this.cashOnDeliveryAmount,
+        'cashOnDeliveryCurrency': this.cashOnDeliveryCurrency,
+        'insuredAmount': this.insuredAmount,
+        'insuredAmountCurrency': this.insuredAmountCurrency,
+        'deliveredAt': this.deliveredAt?.toUtc(),
+        'totalWeight': this.totalWeight,
+        'itemsInOrderPackages': this.itemsInOrderPackages,
+        'orderTimelines': this.orderTimelines,
+      };
 }

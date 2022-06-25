@@ -1,5 +1,8 @@
+import 'dart:html';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:timelines/timelines.dart';
@@ -9,6 +12,7 @@ import 'package:v2_tracking_page/shared/helpers.dart';
 import 'package:v2_tracking_page/shared/icons.dart';
 import 'package:v2_tracking_page/shared/spacings.dart';
 import 'package:v2_tracking_page/shared/theming.dart';
+import 'package:v2_tracking_page/tracking/track.bloc.dart';
 import 'package:v2_tracking_page/tracking/widgets/delivery-settings.dart';
 
 class Stop {
@@ -28,18 +32,20 @@ class Step {
 
 class TrackingScreen extends StatefulWidget {
   static const String routeName = 'tracking';
-  const TrackingScreen({Key? key}) : super(key: key);
+  const TrackingScreen({
+    Key? key,
+  }) : super(key: key);
 
+  // final String orderId ='';
   @override
   State<TrackingScreen> createState() => _TrackingScreenState();
 }
-
-// late Future 
 
 class _TrackingScreenState extends State<TrackingScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _trackingNumberController = TextEditingController();
   bool isShowItemDetails = false;
+  // late TrackOrderBloc trackOrderBloc;
 
   @override
   void initState() {
@@ -47,8 +53,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
     _focusNode.addListener(() {
       setState(() {});
     });
+    // trackOrderBloc = BlocProvider.of<TrackOrderBloc>(context);
 
-
+    // trackOrderBloc.fetchTrackOrder('cba20399-7b26-41c0-aabf-ed76e286bac9');
   }
 
   FocusNode _focusNode = FocusNode();
@@ -136,59 +143,83 @@ class _TrackingScreenState extends State<TrackingScreen> {
   bodyContent() {
     return Form(
       key: _formKey,
-      child: Column(
-        children: [
-          Text(
-            "Shipment Tracking",
-            style: Theme.of(context).textTheme.headline4?.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      child: BlocConsumer<TrackOrderBloc, TrackOrderState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          return Column(
+            children: [
+              if (state.status != GetTrackOrderStatus.error) ...[
+                Text(
+                  "Shipment Tracking",
+                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: kText1Color,
+                      ),
                 ),
-          ),
-          Spacings.TINY_VERTICAL,
-          Text("Track your order",
-              style: Theme.of(context).textTheme.bodyText1),
-          Spacings.LITTLE_BIG_VERTICAL,
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 45,
-                  color: const Color(0xff000000).withOpacity(0.1),
+                Spacings.TINY_VERTICAL,
+                Text(
+                  "Track your order",
+                  style: Theme.of(context).textTheme.bodyText1,
                 ),
               ],
-            ),
-            child: buildTrackNumberSection(),
-          ),
-          Spacings.LITTLE_BIG_VERTICAL,
-          contactUs(),
-          Spacings.LITTLE_BIG_VERTICAL,
-          Container(
-            width: .6.sw,
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Color(0xffE0E0E0).withOpacity(.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildOrderPickHeader(context),
-                Spacings.NORMAL_VERTICAL,
-                buildTrackingNumber(context),
-                Spacings.NORMAL_VERTICAL,
-                buildEstimatedDate(context),
-                Spacings.NORMAL_VERTICAL,
-                destinationFromToSection(),
-                Spacings.NORMAL_VERTICAL,
-                allDestinationsSection()
+              if (state.status == GetTrackOrderStatus.error) ...[
+                Icon(Icons.error_outline, size: 50, color: kFailedColor),
+                SizedBox(
+                  height: 30.h,
+                ),
+                Text(
+                  'Sorry we couldn\'t find the order you\'re looking for',
+                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                      color: kText1Color, fontWeight: FontWeight.bold),
+                )
               ],
-            ),
-          )
-        ],
+              Spacings.LITTLE_BIG_VERTICAL,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 45,
+                      color: const Color(0xff000000).withOpacity(0.1),
+                    ),
+                  ],
+                ),
+                child: buildTrackNumberSection(),
+              ),
+              Spacings.LITTLE_BIG_VERTICAL,
+              contactUs(),
+              if (state.trackOrder != null &&
+                  state.status != GetTrackOrderStatus.error &&
+                  state.status == GetTrackOrderStatus.idle) ...[
+                Spacings.LITTLE_BIG_VERTICAL,
+                Container(
+                  width: .6.sw,
+                  padding: const EdgeInsets.all(30),
+                  decoration: BoxDecoration(
+                    color: Color(0xffE0E0E0).withOpacity(.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildOrderPickHeader(context, state),
+                      Spacings.NORMAL_VERTICAL,
+                      buildTrackingNumber(context, state),
+                      Spacings.NORMAL_VERTICAL,
+                      buildEstimatedDate(context),
+                      Spacings.NORMAL_VERTICAL,
+                      destinationFromToSection(),
+                      Spacings.NORMAL_VERTICAL,
+                      allDestinationsSection()
+                    ],
+                  ),
+                )
+              ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -545,7 +576,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
     );
   }
 
-  buildTrackingNumber(BuildContext context) {
+  buildTrackingNumber(BuildContext context, TrackOrderState state) {
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,7 +590,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
           ),
           Spacings.TINY_VERTICAL,
           Text(
-            'LNG12026723',
+            state.trackOrder?.id ?? '',
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -570,7 +601,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
     );
   }
 
-  buildOrderPickHeader(BuildContext context) {
+  buildOrderPickHeader(BuildContext context, TrackOrderState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -583,14 +614,14 @@ class _TrackingScreenState extends State<TrackingScreen> {
               Container(
                 width: 300,
                 child: ListTile(
-                  title: Text(
-                    'Order Picked Up',
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          color: kPrimaryColor,
-                        ),
-                  ),
-                  subtitle: Text('Last updated:12:30 PM, 13 Jan 2022'),
-                ),
+                    title: Text(
+                      state.trackOrder?.status ?? '',
+                      style: Theme.of(context).textTheme.headline4?.copyWith(
+                            color: kPrimaryColor,
+                          ),
+                    ),
+                    subtitle:
+                        Text("Last updated: ${state.trackOrder?.deliveredAt}")),
               ),
             ],
           ),
@@ -678,28 +709,37 @@ class _TrackingScreenState extends State<TrackingScreen> {
             ),
           ),
           SizedBox(width: 24),
-          Button(
-            text: "Track order",
-            primary: kPrimaryColor,
-            textColor: kWhite,
-            padding: EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 22,
-            ),
-            onPressed: () {},
+          BlocBuilder<TrackOrderBloc, TrackOrderState>(
+            builder: (context, state) {
+              return Button(
+                text: "Track order",
+                primary: kPrimaryColor,
+                isLoading: state.status == GetTrackOrderStatus.loading,
+                textColor: kWhite,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 22,
+                ),
+                onPressed: () async {
+                  await context
+                      .read<TrackOrderBloc>()
+                      .fetchTrackOrder(_trackingNumberController.text.trim());
+                },
+              );
+            },
           )
         ],
       ),
     );
   }
 
-  Future<void> onLoginTapped() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-    } else {
-      throw ("error");
-    }
-  }
+  // Future<void> onLoginTapped() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
+  //   } else {
+  //     throw ("error");
+  //   }
+  // }
 }
 
 class EditDeliveryNotes extends StatelessWidget {

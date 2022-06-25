@@ -8,15 +8,9 @@ part of 'contact-detail.model.dart';
 
 ContactDetail _$ContactDetailFromJson(Map<String, dynamic> json) =>
     ContactDetail(
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
-      deletedAt: json['deletedAt'] == null
-          ? null
-          : DateTime.parse(json['deletedAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] as String?,
+      deletedAt: json['deletedAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
       id: json['id'] as String?,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
@@ -43,9 +37,9 @@ Map<String, dynamic> _$ContactDetailToJson(ContactDetail instance) =>
       'address': instance.address,
       'typeOfOtherContactDetail':
           _$TypeOfOtherContactDetailEnumMap[instance.typeOfOtherContactDetail],
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'deletedAt': instance.deletedAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
+      'createdAt': instance.createdAt,
+      'deletedAt': instance.deletedAt,
+      'updatedAt': instance.updatedAt,
     };
 
 const _$TypeOfOtherContactDetailEnumMap = {

@@ -15,9 +15,9 @@ class OrderReference {
   final String? id;
   final String? merchantOrderNumber;
   final String? others;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? deletedAt;
 
   factory OrderReference.fromJson(Map<String, dynamic> json) =>
       _$OrderReferenceFromJson(json);

@@ -19,9 +19,9 @@ class Address {
   final SpecificTypeOfLocation? specificTypeOfLocation;
   final TypeOfContactForAddress? typeOfContactForAddress;
   final GenericTypeOfLocation? genericTypeOfLocation;
-  final DateTime? createdAt;
-  final DateTime? deletedAt;
-  final DateTime? updatedAt;
+  final String? createdAt;
+  final String? deletedAt;
+  final String? updatedAt;
 
   Address({
     this.id,

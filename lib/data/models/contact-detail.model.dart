@@ -15,9 +15,9 @@ class ContactDetail {
   final String? company;
   final Address? address;
   final TypeOfOtherContactDetail? typeOfOtherContactDetail;
-  final DateTime? createdAt;
-  final DateTime? deletedAt;
-  final DateTime? updatedAt;
+  final String? createdAt;
+  final String? deletedAt;
+  final String? updatedAt;
 
   ContactDetail({
     this.createdAt,

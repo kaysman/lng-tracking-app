@@ -8,15 +8,9 @@ part of 'order_package.model.dart';
 
 OrderPackage _$OrderPackageFromJson(Map<String, dynamic> json) => OrderPackage(
       id: json['id'] as String?,
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-      deletedAt: json['deletedAt'] == null
-          ? null
-          : DateTime.parse(json['deletedAt'] as String),
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      deletedAt: json['deletedAt'] as String?,
       name: json['name'] as String?,
       description: json['description'] as String?,
       quantity: json['quantity'] as int?,
@@ -52,9 +46,9 @@ Map<String, dynamic> _$OrderPackageToJson(OrderPackage instance) =>
       'isDangerousGood': instance.isDangerousGood,
       'type': _$TypeOfPackageEnumMap[instance.type],
       'otherNotes': instance.otherNotes,
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'deletedAt': instance.deletedAt?.toIso8601String(),
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
+      'deletedAt': instance.deletedAt,
     };
 
 const _$DimensionUnitConversionEnumMap = {
